@@ -8,7 +8,8 @@ export const ContextProvider = ({ children }) => {
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [dataByRegion, setDataByRegion] = useState(null);
-    const [selectedCountry, setSelectedCountry] = useState()
+    const [selectedCountry, setSelectedCountry] = useState(null);
+    const [error, setError] = useState(null);  // Added state for error handling
 
     const themeToggle = () => {
         setTheme(prevTheme => !prevTheme);
@@ -19,7 +20,8 @@ export const ContextProvider = ({ children }) => {
             const res = await axios("/data.json");
             setData(res.data);
         } catch (error) {
-            console.error(error);
+            console.error("Error fetching data:", error);
+            setError("Failed to load data. Please try again later.");
         }
     };
 
@@ -42,15 +44,17 @@ export const ContextProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (!data.length) {  // Avoid unnecessary fetching
+            fetchData();
+        }
+    }, [data]);
 
     useEffect(() => {
         if (dataByRegion) {
             const regionData = data.filter(country => country.region.toLowerCase() === dataByRegion);
             setFilteredData(regionData);
         } else {
-            setFilteredData([]); // Reset the filter when no region is selected
+            setFilteredData([]);
         }
     }, [dataByRegion, data]);
 
@@ -65,6 +69,7 @@ export const ContextProvider = ({ children }) => {
             dataByRegion,
             showCountryDetails,
             selectedCountry,
+            error, // Provide error state
         }}>
             {children}
         </ThemeContext.Provider>

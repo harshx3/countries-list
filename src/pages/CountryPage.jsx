@@ -6,14 +6,16 @@ import { GoArrowLeft } from "react-icons/go";
 
 const CountryPage = () => {
 
-    const { theme, selectedCountry } = useContext(ThemeContext);
+    const { theme, selectedCountry, data } = useContext(ThemeContext);
 
 
     const languages = selectedCountry.languages.map(language => language.name) || [];
     const currency = selectedCountry.currencies.map(currency => currency.name) || [];
     const border = selectedCountry.borders ?? [];
-    console.log(border);
-    console.log(theme);
+    const bordersName = border.map((borderCode) => {
+        const matchingCountry = data.find(country => country.alpha3Code === borderCode);
+        return matchingCountry ? matchingCountry.name : null;
+    }).filter(Boolean);
 
     const navigate = useNavigate();
 
@@ -54,8 +56,16 @@ const CountryPage = () => {
                     </div>
 
                     <div className="border-country-div">
-                        <p><strong>Border Countries: </strong>{...border.toLocaleString()}</p>
+                        <p><strong>Border Countries: </strong></p>
+                        <div className="border-box-container">
+                            {bordersName.map((name, index) => (
+                                <p key={index} className="border-name">
+                                    {name}
+                                </p>
+                            ))}
+                        </div>
                     </div>
+
                 </div>
 
             </div>
